@@ -262,11 +262,14 @@ def add_configs(olo_tb):
 
     ### olo_base_fifo_packet ###
     fifo_packet_tb = 'olo_base_fifo_packet_tb'
+    fifo_packet_tb_hs = 'olo_base_fifo_packet_hs_tb'
     tb = olo_tb.test_bench(fifo_packet_tb)
-    #Choose settings for short runtim
-    named_config(tb, {'RandomPackets_g': 10, 'RandomStall_g': True})
-    named_config(tb, {'RandomPackets_g': 10, 'RandomStall_g': False}) #Some checks require non-random stall
-    #fifo_packet_hs_tb does not have generics
+    tb_hs = olo_tb.test_bench(fifo_packet_tb_hs)
+    #Choose settings for short runtime
+    for FeatureSet in ["FULL", "DROP_ONLY"]:
+        named_config(tb, {'RandomPackets_g': 10, 'RandomStall_g': True, 'FeatureSet_g' : FeatureSet})
+        named_config(tb, {'RandomPackets_g': 10, 'RandomStall_g': False, 'FeatureSet_g' : FeatureSet}) #Some checks require non-random stall
+        named_config(tb_hs, {'FeatureSet_g' : FeatureSet})
 
     ### olo_base_cam ###
     cam_tb = 'olo_base_cam_tb'
@@ -320,3 +323,23 @@ def add_configs(olo_tb):
     for BitFlip in [True, False]:
         for InvertOutput in [True, False]:
             named_config(tb, {'BitflipOutput_g': BitFlip, 'InvertOutput_g' : InvertOutput})
+
+    ### olo_base_crc_append ###
+    crc_append_tb = 'olo_base_crc_append_tb'
+    tb = olo_tb.test_bench(crc_append_tb)  
+    for DataWidth, CrcWidth in [(8, 8), (16, 8), (16, 16)]:
+        named_config(tb, {'CrcWidth_g': CrcWidth, 'DataWidth_g': DataWidth})
+
+    ### olo_base_crc_check ###
+    crc_check_tb = 'olo_base_crc_check_tb'
+    tb = olo_tb.test_bench(crc_check_tb)  
+    for DataWidth, CrcWidth in [(8, 8), (16, 8), (16, 16)]:
+        named_config(tb, {'CrcWidth_g': CrcWidth, 'DataWidth_g': DataWidth})
+    for Mode in ["DROP", "FLAG"]:
+        named_config(tb, {'Mode_g': Mode})
+
+    ### olo_base_crc_append + olo_base_crc_check ###
+    crc_append_check_tb = 'olo_base_crc_append_check_tb'
+    tb = olo_tb.test_bench(crc_append_check_tb)  
+    for Mode in ["DROP", "FLAG"]:
+        named_config(tb, {'CheckMode_g': Mode})
